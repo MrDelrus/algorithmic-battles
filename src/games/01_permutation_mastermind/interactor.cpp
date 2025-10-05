@@ -1,75 +1,75 @@
 #include "interactor.h"
 
 PermutationMastermindInteractor::PermutationMastermindInteractor(int64_t size)
-    : roundsCounter_(0)
-    , verdict_(testing::Result::TESTING)
-    , permutation_(size)
+    : roundsCounter(0)
+    , verdict(testing::Result::TESTING)
+    , permutation(size)
 {
-    std::iota(permutation_.begin(), permutation_.end(), 0);
+    std::iota(permutation.begin(), permutation.end(), 0);
     std::random_device rd;
     std::mt19937 rng(rd());
-    std::shuffle(permutation_.begin(), permutation_.end(), rng);
+    std::shuffle(permutation.begin(), permutation.end(), rng);
 }
 
 std::string PermutationMastermindInteractor::Request() {
-    return std::to_string(matches_);
+    return std::to_string(matchedCount);
 }
 
 void PermutationMastermindInteractor::Receive(const std::string& observation) {
-    ++roundsCounter_;
-    if (roundsCounter_ > permutation_.size() * permutation_.size() * permutation_.size()) {
-        verdict_ = testing::Result::QUERY_LIMIT;
+    ++roundsCounter;
+    if (roundsCounter > permutation.size() * permutation.size() * permutation.size()) {
+        verdict = testing::Result::QUERY_LIMIT;
     }
-    response_ = observation;
-    std::istringstream istr(response_);
+    response = observation;
+    std::istringstream istr(response);
     std::string type;
     if (!(istr >> type) || type != "!" && type != "?") {
-        verdict_ = testing::Result::PRESENTATION_ERROR;
+        verdict = testing::Result::PRESENTATION_ERROR;
         return;
     }
-    std::vector<int64_t> guess(permutation_.size());
-    std::vector<bool> used(permutation_.size(), false);
-    matches_ = 0;
-    for (size_t index = 0; index < permutation_.size(); ++index) {
+    std::vector<int64_t> guess(permutation.size());
+    std::vector<bool> used(permutation.size(), false);
+    matchedCount = 0;
+    for (size_t index = 0; index < permutation.size(); ++index) {
         int64_t input;
         if (istr >> input) {
-            if (input >= permutation_.size() || input < 0 || used[input]) {
-                verdict_ = testing::Result::PRESENTATION_ERROR;
+            if (input >= permutation.size() || input < 0 || used[input]) {
+                verdict = testing::Result::PRESENTATION_ERROR;
                 return;
             }
-            if (input == permutation_[index]) {
-                ++matches_;
+            if (input == permutation[index]) {
+                ++matchedCount;
             }
             used[input] = true;
         } else {
-            verdict_ = testing::Result::PRESENTATION_ERROR;
+            verdict = testing::Result::PRESENTATION_ERROR;
             return;
         }
         guess[index] = input;
     }
     std::string leftover;
     if (istr >> leftover) {
-        verdict_ = testing::Result::PRESENTATION_ERROR;
+        verdict = testing::Result::PRESENTATION_ERROR;
         return;
     }
     if (type == "!") {
-        if (matches_ == permutation_.size()) {
-            verdict_ = testing::Result::ACCEPTED;
+        if (matchedCount == permutation.size()) {
+            verdict = testing::Result::ACCEPTED;
         } else {
-            verdict_ = testing::Result::WRONG_ANSWER;
+            verdict = testing::Result::WRONG_ANSWER;
         }
     }
 }
 
 bool PermutationMastermindInteractor::IsFinished() const {
-    return verdict_ != testing::Result::TESTING;
+    return verdict != testing::Result::TESTING;
 }
 
 testing::Result PermutationMastermindInteractor::GetVerdict() const {
-    return verdict_;
+    return verdict;
 }
 
 
 int64_t PermutationMastermindInteractor::ComputeScore() const {
-    return roundsCounter_;
+    return roundsCounter;
 }

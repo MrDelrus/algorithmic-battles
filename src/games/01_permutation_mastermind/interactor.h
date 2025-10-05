@@ -15,9 +15,9 @@ public:
     testing::Result GetVerdict() const override;
     int64_t ComputeScore() const override;
 private:
-    int64_t roundsCounter_;
-    testing::Result verdict_;
-    std::vector<int64_t> permutation_;
-    std::string response_;
-    int64_t matches_;
+    int64_t roundsCounter;
+    testing::Result verdict;
+    std::vector<int64_t> permutation;
+    std::string response;
+    int64_t matchedCount;
 };
