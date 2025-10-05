@@ -3,11 +3,11 @@
 namespace testing {
 
 enum class Result {
-    Testing,
-    Accepted,
-    WrongAnswer,
-    PresentationError,
-    QueryLimit
+    TESTING,
+    ACCEPTED,
+    WRONG_ANSWER,
+    PRESENTATION_ERROR,
+    QUERY_LIMIT
 };
 
 }  // testing

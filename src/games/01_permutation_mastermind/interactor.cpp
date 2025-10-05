@@ -2,7 +2,7 @@
 
 PermutationMastermindInteractor::PermutationMastermindInteractor(int64_t size)
     : roundsCounter_(0)
-    , verdict_(testing::Result::Testing)
+    , verdict_(testing::Result::TESTING)
     , permutation_(size)
 {
     std::iota(permutation_.begin(), permutation_.end(), 0);
@@ -18,13 +18,13 @@ std::string PermutationMastermindInteractor::Request() {
 void PermutationMastermindInteractor::Receive(const std::string& observation) {
     ++roundsCounter_;
     if (roundsCounter_ > permutation_.size() * permutation_.size() * permutation_.size()) {
-        verdict_ = testing::Result::QueryLimit;
+        verdict_ = testing::Result::QUERY_LIMIT;
     }
     response_ = observation;
     std::istringstream istr(response_);
     std::string type;
     if (!(istr >> type) || type != "!" && type != "?") {
-        verdict_ = testing::Result::PresentationError;
+        verdict_ = testing::Result::PRESENTATION_ERROR;
         return;
     }
     std::vector<int64_t> guess(permutation_.size());
@@ -34,7 +34,7 @@ void PermutationMastermindInteractor::Receive(const std::string& observation) {
         int64_t input;
         if (istr >> input) {
             if (input >= permutation_.size() || input < 0 || used[input]) {
-                verdict_ = testing::Result::PresentationError;
+                verdict_ = testing::Result::PRESENTATION_ERROR;
                 return;
             }
             if (input == permutation_[index]) {
@@ -42,27 +42,27 @@ void PermutationMastermindInteractor::Receive(const std::string& observation) {
             }
             used[input] = true;
         } else {
-            verdict_ = testing::Result::PresentationError;
+            verdict_ = testing::Result::PRESENTATION_ERROR;
             return;
         }
         guess[index] = input;
     }
     std::string leftover;
     if (istr >> leftover) {
-        verdict_ = testing::Result::PresentationError;
+        verdict_ = testing::Result::PRESENTATION_ERROR;
         return;
     }
     if (type == "!") {
         if (matches_ == permutation_.size()) {
-            verdict_ = testing::Result::Accepted;
+            verdict_ = testing::Result::ACCEPTED;
         } else {
-            verdict_ = testing::Result::WrongAnswer;
+            verdict_ = testing::Result::WRONG_ANSWER;
         }
     }
 }
 
 bool PermutationMastermindInteractor::IsFinished() const {
-    return verdict_ != testing::Result::Testing;
+    return verdict_ != testing::Result::TESTING;
 }
 
 testing::Result PermutationMastermindInteractor::GetVerdict() const {

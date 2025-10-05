@@ -20,10 +20,10 @@ std::pair<bool, int64_t> RunMatch(
     } while (!interactor.IsFinished());
 
     auto verdict = interactor.GetVerdict();
-    if (verdict == Result::Testing) {
+    if (verdict == Result::TESTING) {
         throw std::runtime_error("Interactor made a verdict before finishing testing. Implementation error!");
     }
-    if (verdict != Result::Accepted) {
+    if (verdict != Result::ACCEPTED) {
         return {false, 0};
     }
     int64_t score = interactor.ComputeScore();

@@ -2,9 +2,9 @@ name: C++ Deep Code Quality
 
 on:
   push:
-    branches: [ main, game/* ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, game/* ]
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       branch:
