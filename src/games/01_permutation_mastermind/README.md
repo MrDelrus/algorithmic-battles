@@ -2,9 +2,9 @@
 
 Welcome to the first game of our cycle!
 
-This game is pretty simple and is supposed to set-up the environment.
+This game is pretty simple and is supposed to set up the environment.
 
-## Rules:
+## Rules
 
 `Interactor` secretly chose a permutation `p`, which you need to guess. You can choose any permutation `q` and make one of two following queries: 
 
@@ -16,7 +16,7 @@ This game is pretty simple and is supposed to set-up the environment.
 
 `Interactor` will compare given permutation to `p`. If you guessed correctly, you won! But be careful - you have only one attempt to send such query.
 
-## API:
+## API
 
 You must implement three methods (C++-syntax is used).
 
@@ -67,7 +67,7 @@ Random 100 permutations of length 100 are chosen.
 
 Each strategy will be tested on these permutations (permutations are the same for all the strategies). If strategy fails more than 10 times, it's not included in final leaderboard.
 
-For each permutation we calculate number of rounds, guess is included. We exclude 10 best and 10 worst attempts. Final score - RMSE of 80 other attempts.
+For each permutation we calculate the number of rounds, final guess is included. We exclude 10 best and 10 worst attempts. The final score is the root mean square (RMS) of the remaining 80 attempts. The goal is to minimise this score.
 
 ## Local testing
 
