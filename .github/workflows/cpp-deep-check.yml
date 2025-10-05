@@ -1,0 +1,127 @@
+name: C++ Deep Code Quality
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to check'
+        required: true
+        default: 'main'
+        type: string
+
+jobs:
+  deep-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy cppcheck python3-pip
+        pip3 install pre-commit
+
+    - name: Check trailing whitespace
+      run: |
+        echo "Checking for trailing whitespace..."
+        if find src/ -name "*.cpp" -o -name "*.h" -o -name "*.c" | xargs grep -n '[[:space:]]$'; then
+          echo "❌ Found trailing whitespace!"
+          exit 1
+        fi
+
+    - name: Check file endings
+      run: |
+        echo "Checking file endings..."
+        for file in $(find src/ -name "*.cpp" -o -name "*.h" -o -name "*.c"); do
+          if [ -s "$file" ] && [ "$(tail -c 1 "$file")" != "" ]; then
+            echo "❌ File $file doesn't end with empty line"
+            exit 1
+          fi
+        done
+
+    - name: Run clang-tidy with naming conventions
+      run: |
+        echo "Running clang-tidy with naming checks..."
+
+        # Find C++ files, handle case where none exist
+        FILES=$(find src/ -name "*.cpp" -o -name "*.h" 2>/dev/null || true)
+
+        if [ -z "$FILES" ]; then
+          echo "⚠️ No C++ files found in src/. Skipping clang-tidy."
+          exit 0
+        fi
+
+        echo "Found files: $FILES"
+        clang-tidy -checks='-*,readability-identifier-naming' \
+          -config='{CheckOptions: [
+            {key: readability-identifier-naming.ClassCase, value: CamelCase},
+            {key: readability-identifier-naming.StructCase, value: CamelCase},
+            {key: readability-identifier-naming.FunctionCase, value: CamelCase},
+            {key: readability-identifier-naming.VariableCase, value: camelCase},
+            {key: readability-identifier-naming.MemberCase, value: camelCase},
+            {key: readability-identifier-naming.ConstantCase, value: UPPER_CASE}
+          ]}' \
+          $(find src/ -name "*.cpp" -o -name "*.h")
+
+    - name: Check header/implementation separation
+      run: |
+        echo "Checking header/implementation separation..."
+
+        # Check .h files for function implementations
+        echo "Checking headers for implementations..."
+        HEADER_FILES=$(find src/ -name "*.h" 2>/dev/null || true)
+        if [ -n "$HEADER_FILES" ]; then
+          if echo "$HEADER_FILES" | xargs grep -l -E "^\s*[a-zA-Z_].*\{.*\}" 2>/dev/null | grep -v "inline" | grep -v ".gitkeep"; then
+            echo "❌ Found function implementations in header files!"
+            exit 1
+          fi
+        else
+          echo "No header files found to check."
+        fi
+
+        # Check .cpp files for global namespace declarations
+        echo "Checking .cpp files for global declarations..."
+        CPP_FILES=$(find src/ -name "*.cpp" 2>/dev/null || true)
+        if [ -n "$CPP_FILES" ]; then
+          if echo "$CPP_FILES" | xargs grep -l -E "^(class|struct|enum)\s+" 2>/dev/null | grep -v "//" | grep -v ".gitkeep"; then
+            echo "❌ Found class/struct declarations in .cpp files!"
+            exit 1
+          fi
+        else
+          echo "No .cpp files found to check."
+        fi
+
+    - name: Check include ordering
+      run: |
+        echo "Checking include ordering with clang-tidy..."
+        FILES=$(find src/ -name "*.cpp" -o -name "*.h" 2>/dev/null || true)
+        if [ -z "$FILES" ]; then
+          echo "No C++ files found. Skipping include ordering check."
+          exit 0
+        fi
+
+        echo "Checking files: $FILES"
+        clang-tidy -checks='-*,llvm-include-order,readability-duplicate-include' \
+          $FILES
+
+    - name: Run cppcheck (comprehensive)
+      run: |
+        # Check if src directory exists and has files
+        if [ ! -d "src" ] || [ -z "$(find src/ -name '*.cpp' -o -name '*.h' 2>/dev/null | head -1)" ]; then
+          echo "No source files found for cppcheck. Skipping."
+          exit 0
+        fi
+
+        echo "Running cppcheck..."
+        cppcheck --enable=all --suppress=missingIncludeSystem --inline-suppr \
+          --suppress=unusedFunction \
+          src/
+
+    - name: Final summary
+      run: |
+        echo "✅ Deep code analysis completed!"
