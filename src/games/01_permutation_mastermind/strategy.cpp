@@ -9,5 +9,5 @@ std::string PermutationMastermindStrategy::Request() {
 }
 
 void PermutationMastermindStrategy::Receive(const std::string& observation) {
-    throw std::runtime_error("Not Implemented!");  
+    throw std::runtime_error("Not Implemented!");
 };

@@ -40,7 +40,7 @@ void PermutationMastermindInteractor::Receive(const std::string& observation) {
             if (input == permutation_[index]) {
                 ++matches_;
             }
-            used[input] = true; 
+            used[input] = true;
         } else {
             verdict_ = testing::Result::PresentationError;
             return;
