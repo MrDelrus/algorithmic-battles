@@ -1,10 +1,6 @@
 .vscode/
 build/
 env/
-*.wasm
-src/games/01_permutation_mastermind/baseline/
+*wasm*
 src/games/01_permutation_mastermind/submission/README.md
-src/games/01_permutation_mastermind/submission/test_wasm.cpp
-src/games/01_permutation_mastermind/submission/wasm_example.cpp
-src/testing/wasm_*
 test_local.sh
