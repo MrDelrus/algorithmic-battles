@@ -45,7 +45,7 @@ void PermutationMastermindBaselineStrategy::Receive(const std::string& observati
     if (matchedCount < previousMatchedCount) {
         std::swap(permutation[indexFirst], permutation[indexSecond]);
     }
-    if (abs(matchedCount - previousMatchedCount) == 2) {
+    if (std::abs(matchedCount - previousMatchedCount) == 2) {
         isMatched[indexFirst] = true;
         isMatched[indexSecond] = true;
     }
